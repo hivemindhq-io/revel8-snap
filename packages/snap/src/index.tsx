@@ -41,3 +41,6 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       throw new Error('Method not found.');
   }
 };
+
+export * from './onTransaction';
+export * from './onSignature';

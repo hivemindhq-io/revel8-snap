@@ -1,13 +1,13 @@
 {
   "version": "0.1.0",
-  "description": "An example Snap written in TypeScript.",
-  "proposedName": "TypeScript Example",
+  "description": "A snap written by Revel8 to provide insights about transactions",
+  "proposedName": "Revel8 Insights",
   "repository": {
     "type": "git",
     "url": "https://github.com/MetaMask/template-snap-monorepo.git"
   },
   "source": {
-    "shasum": "w6U/S41ex1qqfj8JTvbvr8xUrooUeb1XjJOHH1J7SoU=",
+    "shasum": "iCBaYmkZ5WeeIHLFnlumOGHkUtmbprFK2Pjmx3L1Ook=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -17,6 +17,13 @@
     }
   },
   "initialPermissions": {
+    "endowment:transaction-insight": {
+      "allowTransactionOrigin": true
+    },
+    "endowment:signature-insight": {
+      "allowSignatureOrigin": true
+    },
+    "endowment:network-access": {},
     "snap_dialog": {},
     "endowment:rpc": {
       "dapps": true,
