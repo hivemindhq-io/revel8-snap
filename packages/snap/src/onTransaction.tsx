@@ -3,28 +3,29 @@ import { Box, Heading, Text } from "@metamask/snaps-sdk/jsx";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-const baseURL = 'https://api.base-sepolia.revel8.io';
+const baseURL = 'http://localhost:3333';
 
 export const onTransaction: OnTransactionHandler = async ({
   transaction,
   chainId,
   transactionOrigin,
 }) => {
-  console.log(1, {transaction, chainId, transactionOrigin});
+  console.log(1, { transaction, chainId, transactionOrigin });
   console.log(2, transaction);
-  const { to } = transaction
-  let insights: unknown[] = []
+  const { to } = transaction;
+  let insights: unknown[] = [];
 
   try {
-    const url = `${baseURL}/hex/0xCf8626062768d752C01bc1F67CC0deF0cbe71c3A/triples`
-    console.log('url', url)
-    const {data} = await axios(url)
-    console.log('data', data)
-    insights = data
+    const url = `${baseURL}/hex/0xCf8626062768d752C01bc1F67CC0deF0cbe71c3A/triples`;
+    console.log('kylan url', url);
+    const { data } = await axios(url);
+    console.log('kylan data', data);
+    insights = data;
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
-  
+
+  console.log('kylan insights', insights);
   return {
     content: (
       <Box>
