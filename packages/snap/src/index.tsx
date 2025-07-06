@@ -43,3 +43,4 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 };
 
 export * from './onTransaction';
+export * from './onViewActivityItem';
