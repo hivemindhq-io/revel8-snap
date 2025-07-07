@@ -11,8 +11,11 @@ export const onTransaction: OnTransactionHandler = async ({
   chainId,
   transactionOrigin,
 }) => {
-  console.log(1, { transaction, chainId, transactionOrigin });
-  console.log(2, transaction);
+  console.log('kylan2 onTransaction', {
+    transaction,
+    chainId,
+    transactionOrigin,
+  });
   const { to } = transaction;
   let insights: unknown[] = [];
 
