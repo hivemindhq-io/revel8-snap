@@ -57,5 +57,14 @@
       "@lavamoat/preinstall-always-fail": false,
       "sharp": true
     }
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.83.0",
+    "decimal.js": "^10.6.0",
+    "lucide-react": "^0.525.0",
+    "react-dom": "^19.1.0",
+    "recharts": "^3.1.0",
+    "tailwind-merge": "^3.3.1",
+    "viem": "^2.33.0"
   }
 }

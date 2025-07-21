@@ -10,6 +10,16 @@ const config: SnapConfig = {
   polyfills: {
     buffer: true,
   },
+  customizeWebpackConfig: (webpackConfig) => {
+    // Add webpack aliases to match TypeScript paths
+    webpackConfig.resolve = webpackConfig.resolve ?? {};
+    webpackConfig.resolve.alias = {
+      ...webpackConfig.resolve.alias,
+      '~': resolve(__dirname, '../../common'),
+      '@': resolve(__dirname, '../..'),
+    };
+    return webpackConfig;
+  },
 };
 
 export default config;

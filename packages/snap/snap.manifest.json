@@ -20,8 +20,8 @@
     "endowment:transaction-insight": {
       "allowTransactionOrigin": true
     },
-    "endowment:activity-item-insight": {
-      "allowActivityItemOrigin": true
+    "endowment:transaction-details-insight": {
+      "allowTransactionDetailsOrigin": true
     },
     "endowment:network-access": {},
     "snap_dialog": {},
