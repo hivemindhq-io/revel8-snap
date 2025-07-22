@@ -10,19 +10,19 @@ import {
   Image
 } from '@metamask/snaps-sdk/jsx';
 import {
-  fetchHexMaliciousness,
+  fetchHexMalice,
   fetchExchangeRates,
   fetchTripleVaultPositions,
   generateTriplePositionsTornadoGraphRanges,
-  createTornadoGraphSVG
+  createTornadoGraphSVG,
+  fetchHexAtoms,
 } from '~/util';
+import { CONFIG } from '~/constants/web3';
 
-// import { renderToString } from 'react-dom/server';
+const queryClient = new QueryClient();
 
-const queryClient = new QueryClient()
-
-const apiOrigin = 'http://localhost:56121';
-const explorerOrigin = 'https://localhost:3001';
+const apiOrigin = CONFIG.REVEL8_API_ORIGIN;
+const explorerOrigin = CONFIG.REVEL8_EXPLORER_DOMAIN;
 
 export const onTransactionDetails: OnTransactionDetailsHandler = async ({
   transactionMeta,
@@ -43,37 +43,67 @@ export const onTransactionDetails: OnTransactionDetailsHandler = async ({
 
   const counterPartyAddress = selectedAddress === from ? to : from;
 
-  let url = '';
-  let data = { nothing: 'here' };
+  let url = `${explorerOrigin}/rankings/,24793,25202?modal=complete_triple&atomIds=&address=${counterPartyAddress}`;
 
-  console.log('kylan1 before maliciousnessData');
-  const maliciousnessData = await queryClient.fetchQuery({
-    queryKey: ['maliciousness', counterPartyAddress],
-    queryFn: async () => await fetchHexMaliciousness(counterPartyAddress),
-  });
-  console.log('kylan1 after maliciousnessData');
-  const exchangeRatesData = await queryClient.fetchQuery({
-    queryKey: ['exchangeRates'],
-    queryFn: async () => await fetchExchangeRates(),
-  });
-  console.log('kylan1 after exchangeRatesData');
-  const { data: vaultPositionsData} = await queryClient.fetchQuery({
-    queryKey: ['vaultPositions', maliciousnessData.id],
-    queryFn: async () => await fetchTripleVaultPositions(maliciousnessData.id),
-  });
-  console.log('kylan1 after vaultPositionsData', vaultPositionsData);
-  // check if
-  const maliciousnessExplorerLink = `${explorerOrigin}/rankings/,24793,25202?modal=stake-triple&atomIds=&address=${counterPartyAddress}`;
-  console.log('kylan1 maliciousnessLink', maliciousnessExplorerLink);
-  const trustworthinessExplorerLink = `${explorerOrigin}/hex/${counterPartyAddress}`;
-
-  const rangesFormatted = generateTriplePositionsTornadoGraphRanges({
-    exchangeRates: exchangeRatesData,
-    triplePositionsData: vaultPositionsData,
+  // check if atom exists
+  const hexAtom = await queryClient.fetchQuery({
+    queryKey: ['atom', counterPartyAddress],
+    queryFn: async () => (await fetchHexAtoms(counterPartyAddress)).data[0],
   });
 
-  const svgString = createTornadoGraphSVG(rangesFormatted);
-  console.log('kylan1 rangesFormatted', JSON.stringify(rangesFormatted, null, 2));
+  let svgString = '';
+
+  if (hexAtom) {
+    console.log('hexAtom exists');
+    url = `${explorerOrigin}/rankings/,24793,25202?modal=create_triple&atomIds=${hexAtom.id},24793,25202`;
+
+    const maliceResponse = await queryClient.fetchQuery({
+      queryKey: ['malice', counterPartyAddress],
+      queryFn: async () => await fetchHexMalice(counterPartyAddress),
+    });
+
+    const exchangeRatesResponse = await queryClient.fetchQuery({
+      queryKey: ['exchangeRates'],
+      queryFn: async () => await fetchExchangeRates(),
+    });
+
+    const [maliceData, exchangeRatesData] = await Promise.all([
+      maliceResponse,
+      exchangeRatesResponse,
+    ]);
+    const [maliceTriple] = maliceData;
+    if (maliceTriple) {
+      console.log('maliceTriple exists');
+      url = `${explorerOrigin}/triples/${maliceTriple.id}?modal=stake_triple`;
+
+      const { data: vaultPositionsData } = await queryClient.fetchQuery({
+        queryKey: ['vaultPositions', maliceTriple.id],
+        queryFn: async () => await fetchTripleVaultPositions(maliceTriple.id),
+      });
+
+      const rangesFormatted = generateTriplePositionsTornadoGraphRanges({
+        exchangeRates: exchangeRatesData,
+        triplePositionsData: vaultPositionsData,
+      });
+
+      svgString = createTornadoGraphSVG(rangesFormatted, {
+        label: 'Malicious',
+        valueLabel: '.018 Ξ',
+      });
+    }
+  }
+
+  console.log('onTransactionDetails->return', {
+    counterPartyAddress,
+    svgString,
+    url,
+  });
+
+  let image = null;
+
+  if (svgString) {
+    image = <Image src={svgString} />;
+  }
 
   return {
     content: (
@@ -81,17 +111,17 @@ export const onTransactionDetails: OnTransactionDetailsHandler = async ({
         <Heading>Actions</Heading>
         <Box>
           <Address address={counterPartyAddress as `0x${string}`} />
-          <Link href={maliciousnessExplorerLink}>Report as malicious</Link>
-          <Button name="trustworthy">Trustworthy</Button>
+          {image}
+          <Link href={url}>Report as malicious</Link>
+          {/* <Button name="trustworthy">Trustworthy</Button> */}
         </Box>
-        <Text>Report</Text>
+        {/* <Text>Report</Text>
         <Text>selectedAddress: {selectedAddress}</Text>
         <Text>from: {from}</Text>
         <Text>to: {to}</Text>
         <Text>counterPartyAddress: {counterPartyAddress}</Text>
-        <Text>url: {url}</Text>
-        {/* <Text>Maliciousness: {JSON.stringify(maliciousness)}</Text> */}
-        <Image src={svgString} />
+        <Text>url: {url}</Text> */}
+        {/* <Text>Malice: {JSON.stringify(malice)}</Text> */}
       </Box>
     ),
   };
